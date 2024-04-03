@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+
+{% block content %}
+  <h1>
+    {{ assignment.title }}
+    <h2>{{ assignment.creation_date }}</h2>
+  </h1>
+    <p>There should be some description of an asignment</p>
+    <a href=" {{assignment.repo_url}} "> </a>
+  <h2>Students:</h2>
+  <hr>
+  <ul>
+    {% for student in assignment.students.all %}
+      <li>({{ student.first_name }} {{ student.last_name }})</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>
+    {{ classroom.title }}
+    <h2>Assingments:</h2>
+  </h1>
+  <ul>
+    {% for assignment in classroom.assignment.all %}
+      <li>({{ assignment.title }} {{ assignment.creation_date }})</li>
+    {% endfor %}
+  </ul>
+  <h2>Students:</h2>
+  <hr>
+  <ul>
+    {% for student in classroom.students.all %}
+      <li>({{ student.first_name }} {{ student.last_name }})</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

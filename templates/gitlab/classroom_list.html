@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+{% block content %}
+  <h1>
+    Your classrooms
+  </h1>
+  {% if classroom_list %}
+    <ul>
+       {% for classroom in classroom_list %}
+         <li>
+           <a href="{{classroom.get_absolute_url}}">{{ classroom.id }} || {{ classroom.title }} ({{ classroom.teacher.username}})</a>
+         </li>
+       {% endfor %}
+    </ul>
+    {%else%}
+    <h2>There is no classrooms</h2>
+  {% endif %}
+  {% endblock %}

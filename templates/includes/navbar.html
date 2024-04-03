@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>GitLab Classroom</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="https://gitlab-stud.elka.pw.edu.pl">
+        <img src="{% static 'icons/project_avatar.jpg' %}" alt="GitLab Logo">
+    </a>
+    <div class="application-name">
+        <a href="https://gitlab-stud.elka.pw.edu.pl">GitLab Classroom</a>
+    </div>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'gitlab:index' %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'gitlab:classroom-list' %}">Classrooms</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'gitlab:assignment-list' %}">Assignments</a>
+        </li>
+    </ul>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+{% block content %}
+  <h1>
+    All your created assignments
+  </h1>  
+  {% if assignment_list %}
+    <ul>
+      {% for assignment in assignment_list %}
+      <li>
+        <a href="{{assignment.get_absolute_url}}">{{ assignment.id }} || {{ assignment.title }}  {{ assignment.deadline }} ({{ assignment.classroom.teacher.username}})</a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+        <h2> There are no assignments </h2>
+  {% endif %}
+{% endblock %} 

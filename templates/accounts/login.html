@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> Login </h1>
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+    <form action="{% url 'accounts:login' %}" method="post" style="position:absolute;">
+        {% csrf_token %}
+        <label>GitLab ID:
+            <input type="text" name="gitlab_id">
+        </label>
+        <br>
+        <label>Access Token:
+            <input type="password" name="access_token">
+        </label>
+        <br>
+        <input type="submit" value="Submit">
+        <input type="hidden" name="next" value="{{  next }}">
+    </form>
+{% endblock %}

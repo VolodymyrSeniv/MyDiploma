@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "debug_toolbar",
-    "gitlab",
+    "gitlab_classroom",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -102,6 +103,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.auth_backend.GitLabAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend to manage the admin site
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -129,7 +134,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = "gitlab.Teacher"
+AUTH_USER_MODEL = "gitlab_classroom.Teacher"
 
 INTERNAL_IPS = [
     "127.0.0.1",

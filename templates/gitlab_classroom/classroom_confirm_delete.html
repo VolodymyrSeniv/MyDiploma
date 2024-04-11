@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}  <!-- Ensure this is correct, it should be crispy_forms_tags -->
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Delete Classroom</h1>
+            <div class="alert alert-warning" role="alert">
+                <p>Are you sure you want to delete the classroom <strong>{{ classroom }}</strong>?</p>
+                <p><i>All the assignments will be deleted with this classroom!!</i></p>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="form-group">
+                    <input type="submit" value="Delete" class="btn btn-danger"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

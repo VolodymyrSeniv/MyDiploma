@@ -31,6 +31,7 @@ class Classroom(models.Model): #classroom database model
     creation_date = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
     organization = models.CharField(max_length=255, blank=False)
+    gitlab_id = models.IntegerField(default=0, blank=True)
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE, 
@@ -45,7 +46,7 @@ class Classroom(models.Model): #classroom database model
         return self.title
     
     def get_absolute_url(self):#getting the url
-        return reverse("gitlab:classroom-detail", args=[str(self.id)])
+        return reverse("gitlab_classroom:classroom-detail", args=[str(self.id)])
 
 
 class Assignment(models.Model): #assigment database model
@@ -54,6 +55,7 @@ class Assignment(models.Model): #assigment database model
     description = models.TextField()
     deadline = models.DateTimeField(help_text="The deadline for submitting this assignment.")
     repo_url = models.URLField()
+    gitlab_id = models.IntegerField(default=0, blank=True)
     students = models.ManyToManyField(Student, related_name="assignment")
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -73,7 +75,7 @@ class Assignment(models.Model): #assigment database model
         return self.title
     
     def get_absolute_url(self):#getting the url
-        return reverse("gitlab:assignment-detail", args=[str(self.id)])
+        return reverse("gitlab_classroom:assignment-detail", args=[str(self.id)])
 
 
 class Submission(models.Model): #model for assigment submission

@@ -1,16 +1,43 @@
 {% extends "base.html"%}
+{% load crispy_forms_filters %}
 {% block content %}
   <h1>
     Your classrooms
+    <a class="btn btn-primary link-to-page" style="text-decoration: none;" href="{% url 'gitlab_classroom:classroom-create' %}">+</a>
   </h1>
+  <form method="get" action="" class="d-flex">
+    {{ search_form|crispy }}
+    <input class="btn btn-secondary" type="submit" value="🔎">
+  </form>
   {% if classroom_list %}
-    <ul>
-       {% for classroom in classroom_list %}
-         <li>
-           <a href="{{classroom.get_absolute_url}}">{{ classroom.id }} || {{ classroom.title }} ({{ classroom.teacher.username}})</a>
-         </li>
+  <table class="table">
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Teacher</th>
+      <th>Update</th>
+      <th>Delete</th>
+    </tr>
+    {% for classroom in classroom_list %}
+      <tr>
+        <td>
+          {{ classroom.id }}
+        </td>
+        <td>
+          <a style="text-decoration: none;" href="{{classroom.get_absolute_url}}">  {{ classroom.title }} </a>
+        </td>
+        <td>
+          {{classroom.teacher.username}}
+        </td>
+        <td>
+          <a style="text-decoration: none;" href="{% url 'gitlab_classroom:classroom-update' pk=classroom.id %}"> UPDATE </a>
+        </td>
+        <td>
+          <a style="color: red; text-decoration: none;" href="{% url 'gitlab_classroom:classroom-delete' pk=classroom.id %}"> DELETE </a>
+        </td>
+      </tr>
        {% endfor %}
-    </ul>
+      </table>
     {%else%}
     <h2>There is no classrooms</h2>
   {% endif %}

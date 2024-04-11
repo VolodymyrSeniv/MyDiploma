@@ -1,17 +1,26 @@
 {% extends "base.html"%}
 
 {% block content %}
-  <h1>
-    {{ assignment.title }}
-    <h2>{{ assignment.creation_date }}</h2>
-  </h1>
-    <p>There should be some description of an asignment</p>
-    <a href=" {{assignment.repo_url}} "> </a>
-  <h2>Students:</h2>
-  <hr>
-  <ul>
-    {% for student in assignment.students.all %}
-      <li>({{ student.first_name }} {{ student.last_name }})</li>
-    {% endfor %}
-  </ul>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">{{ assignment.title }}</h1>
+                    <h6 class="text-muted">{{ assignment.creation_date }}</h6>
+                    <p class="card-text">There should be some description of an assignment</p>
+                    <a href="{{ assignment.repo_url }}" class="btn btn-primary">View Repository</a>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h2>Students:</h2>
+                <ul class="list-group">
+                    {% for student in assignment.students.all %}
+                    <li class="list-group-item">({{ student.first_name }} {{ student.last_name }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

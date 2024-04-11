@@ -1,21 +1,36 @@
 {% extends "base.html" %}
-
+{% load crispy_forms_filters %}
 {% block content %}
-    <h1> Login </h1>
-    {% if error %}
-        <p style="color:red">{{ error }}</p>
-    {% endif %}
-    <form action="{% url 'accounts:login' %}" method="post" style="position:absolute;">
-        {% csrf_token %}
-        <label>GitLab ID:
-            <input type="text" name="gitlab_id">
-        </label>
-        <br>
-        <label>Access Token:
-            <input type="password" name="access_token">
-        </label>
-        <br>
-        <input type="submit" value="Submit">
-        <input type="hidden" name="next" value="{{  next }}">
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="card-header">Login</h5>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+                    <form action="{% url 'accounts:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form|crispy }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="gitlab_id" class="form-label">GitLab ID:</label>
+                            <input type="text" class="form-control" id="gitlab_id" name="gitlab_id">
+                        </div>
+                        <div class="mb-3">
+                            <label for="access_token" class="form-label">Access Token:</label>
+                            <input type="password" class="form-control" id="access_token" name="access_token">
+                        </div>
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

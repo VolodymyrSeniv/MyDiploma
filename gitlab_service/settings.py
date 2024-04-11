@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "gitlab_classroom",
     "accounts",
+    "crispy_forms",
+    "crispy_bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -139,3 +141,5 @@ AUTH_USER_MODEL = "gitlab_classroom.Teacher"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"

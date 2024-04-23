@@ -1,43 +1,41 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 {% load crispy_forms_filters %}
 {% block content %}
-  <h1>
-    Your assignments
-  </h1>
-  <form method="get" action="" class="d-flex">
-    {{ search_form|crispy }}
-    <input class="btn btn-secondary" type="submit" value="🔎">
-  </form>
-  {% if assignment_list %}
-  <table class="table">
-    <tr>
-      <th>Classroom</th>
-      <th>Title</th>
-      <th>Deadline</th>
-      <th>Update</th>
-      <th>Delete</th>
-    </tr>
-    {% for assignment in assignment_list %}
-      <tr>
-        <td>
-          {{ assignment.classroom.title }}
-        </td>
-        <td>
-          <a style="text-decoration: none;" href="{{assignment.get_absolute_url}}">  {{ assignment.title }} </a>
-        </td>
-        <td>
-          {{assignment.deadline}}
-        </td>
-        <td>
-          <a style="text-decoration: none;" href="{% url 'gitlab_classroom:assignment-update' pk=assignment.id %}"> UPDATE </a>
-        </td>
-        <td>
-          <a style="color: red; text-decoration: none;" href="{% url 'gitlab_classroom:assignment-delete' pk=assignment.id %}"> DELETE </a>
-        </td>
-      </tr>
-       {% endfor %}
-      </table>
-    {%else%}
-    <h2>There is no classrooms</h2>
-  {% endif %}
-  {% endblock %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Your Assignments</h1>
+    </div>
+    
+    <form method="get" action="" class="d-flex align-items-center mb-3">
+        {{ search_form|crispy }}
+        <button class="btn btn-secondary ms-2 mb-2" type="submit">🔎 Search</button>
+    </form>
+
+    {% if assignment_list %}
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Classroom</th>
+                <th>Title</th>
+                <th>Deadline</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignment_list %}
+            <tr>
+                <td>{{ assignment.classroom.title }}</td>
+                <td><a href="{{ assignment.get_absolute_url }}">{{ assignment.title }}</a></td>
+                <td>{{ assignment.deadline }}</td>
+                <td><a class="btn btn-info" href="{% url 'gitlab_classroom:assignment-update' pk=assignment.id %}">Update</a></td>
+                <td><a class="btn btn-danger" href="{% url 'gitlab_classroom:assignment-delete' pk=assignment.id %}" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <h2 class="text-center">No assignments found.</h2>
+    {% endif %}
+</div>
+{% endblock %}

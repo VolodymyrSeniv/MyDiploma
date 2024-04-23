@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="mb-4">
+                    <h1>{{ student.gitlab_username }}</h1>
+                    <h1>{{ student.first_name }} <small class="text-muted">{{student.second_name}}</small></h1>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

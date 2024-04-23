@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}  <!-- Ensure this is correct, it should be crispy_forms_tags -->
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="form-group">
+                <h1 class="mb-4">{{ object|yesno:"Update,Create" }} Student</h1>
+                <form action="" method="POST" novalidate>  <!-- Removed 'nonvalidate' typo -->
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="mt-3">
+                        <input class="btn btn-primary" type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

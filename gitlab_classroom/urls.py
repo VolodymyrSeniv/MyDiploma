@@ -9,7 +9,12 @@ from gitlab_classroom.views import (index,
                           ClassroomDeleteView,
                           AssignmentCreateView,
                           AssignmentUpdateView,
-                          AssignmentDeleteView)
+                          AssignmentDeleteView,
+                          StudentsListView,
+                          StudentsDetailView,
+                          StudentCreateView,
+                          StudentUpdateView,
+                          StudentDeleteView)
 
 
 urlpatterns = [
@@ -23,7 +28,12 @@ urlpatterns = [
     path("assignments/<int:pk>/delete/", AssignmentDeleteView.as_view(), name="assignment-delete"),
     path("classrooms/create/", ClassroomCreateView.as_view(), name="classroom-create"),
     path("classrooms/<int:pk>/update/", ClassroomUpdateView.as_view(), name="classroom-update"),
-    path("classrooms/<int:pk>/delete/", ClassroomDeleteView.as_view(), name="classroom-delete")
+    path("classrooms/<int:pk>/delete/", ClassroomDeleteView.as_view(), name="classroom-delete"),
+    path("students/", StudentsListView.as_view(), name="student-list"),
+    path("students/<int:pk>/", StudentsDetailView.as_view(), name="student-detail"),
+    path("students/create/", StudentCreateView.as_view(), name="student-create"),
+    path("students/<int:pk>/update/", StudentUpdateView.as_view(), name="student-update"),
+    path("students/<int:pk>/delete/", StudentDeleteView.as_view(), name="student-delete"),
 ]
 
 

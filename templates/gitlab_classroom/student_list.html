@@ -3,8 +3,8 @@
 {% block content %}
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Your classrooms</h1>
-        <a class="btn btn-primary" href="{% url 'gitlab_classroom:classroom-create' %}">+ Add Classroom</a>
+        <h1>Students</h1>
+        <a class="btn btn-primary" href="{% url 'gitlab_classroom:student-create' %}">+ Add Student</a>
     </div>
     
     <form method="get" action="" class="d-flex align-items-center mb-3">
@@ -12,29 +12,29 @@
         <button class="btn btn-secondary ms-2 mb-2" type="submit">🔎 Search</button>
     </form>
 
-    {% if classroom_list %}
+    {% if student_list %}
     <table class="table table-striped">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Title</th>
+                <th>GitLab username</th>
                 <th>Update</th>
                 <th>Delete</th>
             </tr>
         </thead>
         <tbody>
-            {% for classroom in classroom_list %}
+            {% for student in student_list %}
             <tr>
-                <td>{{ classroom.id }}</td>
-                <td><a href="{{ classroom.get_absolute_url }}">{{ classroom.title }}</a></td>
-                <td><a class="btn btn-info" href="{% url 'gitlab_classroom:classroom-update' pk=classroom.id %}">Update</a></td>
-                <td><a class="btn btn-danger" href="{% url 'gitlab_classroom:classroom-delete' pk=classroom.id %}" onclick="return confirm('Are you sure?');">Delete</a></td>
+                <td>{{ student.id }}</td>
+                <td><a href="{{ student.get_absolute_url }}">{{ student.gitlab_username }}</a></td>
+                <td><a class="btn btn-info" href="{% url 'gitlab_classroom:student-update' pk=student.id %}">Update</a></td>
+                <td><a class="btn btn-danger" href="{% url 'gitlab_classroom:student-delete' pk=student.id %}" onclick="return confirm('Are you sure?');">Delete</a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <h2 class="text-center">There are no classrooms available.</h2>
+    <h2 class="text-center">There are no students.</h2>
     {% endif %}
 </div>
 {% endblock %}

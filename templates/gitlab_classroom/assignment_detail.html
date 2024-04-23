@@ -1,5 +1,5 @@
 {% extends "base.html"%}
-
+{% load crispy_forms_filters %}
 {% block content %}
 <div class="container mt-5">
     <div class="row">
@@ -19,6 +19,16 @@
                     <li class="list-group-item">({{ student.first_name }} {{ student.last_name }})</li>
                     {% endfor %}
                 </ul>
+            </div>
+            <div class="container">
+                <h1>{{ object.title }}</h1>
+                <p>{{ object.description }}</p>
+            
+                <form method="post">
+                    {% csrf_token %}
+                    {{ fork_projects_form|crispy }}
+                    <button type="submit">Fork Project</button>
+                </form>
             </div>
         </div>
     </div>

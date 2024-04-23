@@ -15,6 +15,7 @@ class Teacher(AbstractUser): #teacher database model
 
 class Student(models.Model): #student database model
     gitlab_id = models.CharField(max_length=255, unique=True)
+    gitlab_username = models.CharField(max_length=255, unique=True)
     first_name = models.CharField(max_length=100)
     second_name = models.CharField(max_length = 100)
     email = models.EmailField()
@@ -23,7 +24,10 @@ class Student(models.Model): #student database model
         ordering = ["-first_name"]
 
     def __str__(self):
-        return f"{self.first_name} - {self.second_name}"
+        return f"{self.gitlab_username} - {self.gitlab_id}"
+    
+    def get_absolute_url(self):#getting the url
+        return reverse("gitlab_classroom:student-detail", args=[str(self.id)])
 
 
 class Classroom(models.Model): #classroom database model

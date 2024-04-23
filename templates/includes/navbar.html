@@ -24,10 +24,10 @@
         <li class="nav-item">
             <a class="nav-link" href="{% url 'gitlab_classroom:assignment-list' %}">Assignments</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'gitlab_classroom:student-list' %}">Students</a>
+        </li>
         {% if user.is_authenticated %}
-            <li class="nav-item user-gitlab-id" style="margin-left: auto;">
-            Your gitlab ID: {{user.gitlab_id}}
-            </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
             </li>
@@ -36,4 +36,4 @@
 </nav>
 
 </body>
-</html>
+</html> 

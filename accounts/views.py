@@ -11,7 +11,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
         return render(request, "accounts/login.html")
     elif request.method == "POST":
         gitlab_id = request.POST["gitlab_id"]
-        access_token=request.POST["access_token"]
+        access_token = request.POST["access_token"]
         gl = gitlab.Gitlab(url='https://gitlab-stud.elka.pw.edu.pl', private_token=access_token)
         try:
             gl.auth()

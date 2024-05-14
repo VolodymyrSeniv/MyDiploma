@@ -10,22 +10,19 @@ def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "GET":
         return render(request, "accounts/login.html")
     elif request.method == "POST":
-        gitlab_id = request.POST["gitlab_id"]
         access_token = request.POST["access_token"]
-        gl = gitlab.Gitlab(url='https://gitlab-stud.elka.pw.edu.pl', private_token=access_token)
+        if not access_token:
+            return render(request, "accounts/login.html", {'error': 'Access token is required'})
+        request.session["access_token"] = access_token
+        gl = gitlab.Gitlab(url='https://gitlab-stud.elka.pw.edu.pl', private_token=request.session["access_token"])
         try:
             gl.auth()
-            print("You are logged in to GitLab.")
-            user = authenticate(gitlab_id=gitlab_id, access_token=access_token)
-            gl_user = gl.user
-            print(f"GitLab User ID: {gl_user.id}")
-            print(f"GitLab User username: {gl_user.username}")
-            print(f"GitLab User name: {gl_user.name}")
-            print(f"GitLab User name: {gl_user.avatar_url}")
-            print(f"GitLab User name: {gl_user.web_url}")
+            gl_user_id = gl.user.id
+            request.session["avatar"] = gl.user.avatar_url
+            request.session["name"] = gl.user.name
+            request.session["email"] = gl.user.email
+            user = authenticate(gitlab_id=gl_user_id)
             if user:
-                user.first_name = gl_user.name
-                print(f"This {user.first_name}")
                 login(request, user)
                 return HttpResponseRedirect(reverse("gitlab_classroom:index"))
             else:
@@ -34,7 +31,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
                 }
         except gitlab.exceptions.GitlabAuthenticationError:
             error_context = {
-                "error": "Wrong access token"
+                "error": "Invalid access token"
             }
         return render(request, "accounts/login.html", context=error_context)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from gitlab_classroom.models import Teacher, Classroom, Assignment, Student, Submission
+from gitlab_classroom.models import Teacher, Classroom, Assignment, Student
 from django.contrib.auth.admin import UserAdmin
 
 # admin.site.register(Teacher, UserAdmin)
@@ -8,9 +8,9 @@ admin.site.register(Student)
 
 @admin.register(Teacher)
 class TeacherAdmin(UserAdmin):
-    list_display = UserAdmin.list_display + ("gitlab_id", "access_token", )
-    fieldsets = UserAdmin.fieldsets + (("Gitlab Information", {"fields": ("gitlab_id", "access_token", )}),)
-    add_fieldsets = UserAdmin.add_fieldsets + (("Gitlab Information", {"fields": ("gitlab_id", "access_token", )}),)
+    list_display = UserAdmin.list_display + ("gitlab_id",)
+    fieldsets = UserAdmin.fieldsets + (("Gitlab Information", {"fields": ("gitlab_id",)}),)
+    add_fieldsets = UserAdmin.add_fieldsets + (("Gitlab Information", {"fields": ("gitlab_id",)}),)
 
 
 @admin.register(Classroom)

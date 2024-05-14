@@ -68,7 +68,7 @@ class StudentSearchForm(forms.Form):
                                 )
 
 class ForkProjectsForm(forms.Form):
-    gitlab_template_id = forms.IntegerField(
+    gitlab_template_id = forms.CharField(
         label="GitLab Template ID",
         help_text="Enter the GitLab ID of the template project to fork."
     )

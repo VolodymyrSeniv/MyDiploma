@@ -2,3 +2,13 @@
 {% block title %}
     <title>Index</title>
 {% endblock%}
+{% block content %}
+    <div class="container mt-5">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">{{ name }}</h5>
+                <h6 class="card-text">{{ email }}</h6>
+            </div>
+        </div>
+    </div>
+{% endblock %}

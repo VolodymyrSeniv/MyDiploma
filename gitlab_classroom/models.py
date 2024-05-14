@@ -7,18 +7,19 @@ from django.urls import reverse
 # Create your models here.
 class Teacher(AbstractUser): #teacher database model
     gitlab_id = models.CharField(max_length=255, unique=True)
-    access_token = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.first_name} - {self.gitlab_id}"
 
 
 class Student(models.Model): #student database model
-    gitlab_id = models.CharField(max_length=255, unique=True)
+    gitlab_id = models.CharField(max_length=255)
     gitlab_username = models.CharField(max_length=255, unique=True)
     first_name = models.CharField(max_length=100)
     second_name = models.CharField(max_length = 100)
     email = models.EmailField()
+    student_id = models.CharField(max_length=255, default="0")
+    gl_flag = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-first_name"]
@@ -80,30 +81,3 @@ class Assignment(models.Model): #assigment database model
     
     def get_absolute_url(self):#getting the url
         return reverse("gitlab_classroom:assignment-detail", args=[str(self.id)])
-
-
-class Submission(models.Model): #model for assigment submission
-    submission_date = models.DateField()
-    grade = models.CharField(max_length=2)
-    submission_link = models.URLField()
-    feedback = models.TextField(
-        blank=True,
-        help_text="Feedback provided for the submission."
-        )
-    assignment = models.ForeignKey(
-        Assignment,
-        on_delete=models.CASCADE,
-        related_name="submission"
-        )
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.CASCADE,
-        related_name="submission"
-        )
-
-    class Meta:
-        unique_together = ('assignment', 'student')
-        ordering = ['-submission_date']
-
-    def __str__(self):
-        return f"{self.student.name} - {self.assignment.title} - {self.grade}"

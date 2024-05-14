@@ -18,6 +18,7 @@
             <tr>
                 <th>ID</th>
                 <th>GitLab username</th>
+                <th>GitLab Sync</th>
                 <th>Update</th>
                 <th>Delete</th>
             </tr>
@@ -27,6 +28,13 @@
             <tr>
                 <td>{{ student.id }}</td>
                 <td><a href="{{ student.get_absolute_url }}">{{ student.gitlab_username }}</a></td>
+                <td>
+                    {% if student.gl_flag %}
+                        <span class="text-success">&#10003;</span> <!-- This is a tick for True -->
+                    {% else %}
+                        <span class="text-danger">&#10007;</span> <!-- This is a cross for False -->
+                    {% endif %}
+                </td>
                 <td><a class="btn btn-info" href="{% url 'gitlab_classroom:student-update' pk=student.id %}">Update</a></td>
                 <td><a class="btn btn-danger" href="{% url 'gitlab_classroom:student-delete' pk=student.id %}" onclick="return confirm('Are you sure?');">Delete</a></td>
             </tr>

@@ -1,13 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-10 mx-auto">
-                <div class="mb-4">
-                    <h1>{{ student.gitlab_username }}</h1>
-                    <h1>{{ student.first_name }} <small class="text-muted">{{student.second_name}}</small></h1>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="card-title">{{ student.first_name }} {{ student.second_name }}</h1>
+                    <h2><small class="text-muted">GitLab username: {{ student.gitlab_username }}</small></h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="card-text">
+                        <strong>Email:</strong> {{ student.email }}
+                    </p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

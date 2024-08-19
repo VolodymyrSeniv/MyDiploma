@@ -4,7 +4,6 @@ from gitlab_service import settings
 from django.urls import reverse
 
 
-# Create your models here.
 class Teacher(AbstractUser): #teacher database model
     gitlab_id = models.CharField(max_length=255, unique=True)
 

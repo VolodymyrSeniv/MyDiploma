@@ -7,33 +7,38 @@
 </head>
 <body>
 
-<nav class="navbar" style="justify-content: center;">
+<nav class="navbar navbar-expand-lg" style="justify-content: center;">
     <a href="https://gitlab-stud.elka.pw.edu.pl">
         <img src="{% static 'icons/project_avatar.jpg' %}" alt="GitLab Logo">
     </a>
     <div class="application-name">
         <a href="https://gitlab-stud.elka.pw.edu.pl">GitLab Classroom</a>
     </div>
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'gitlab_classroom:index' %}">Home</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'gitlab_classroom:classroom-list' %}">Classrooms</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'gitlab_classroom:assignment-list' %}">Assignments</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'gitlab_classroom:student-list' %}">Students</a>
-        </li>
-        {% if user.is_authenticated %}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
+                <a class="nav-link" href="{% url 'gitlab_classroom:index' %}">Home</a>
             </li>
-        {% endif %}
-    </ul>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'gitlab_classroom:classroom-list' %}">Classrooms</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'gitlab_classroom:assignment-list' %}">Assignments</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'gitlab_classroom:student-list' %}">Students</a>
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 </nav>
-
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIqM7rDAKARUOAeLBV7+U6Xyk5CE2jF5v0j5a7RyfPo5Pv5Y6Xl" crossorigin="anonymous"></script>
 </body>
 </html> 

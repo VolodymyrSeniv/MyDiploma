@@ -8,7 +8,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h1 class="card-title mb-0">{{ assignment.title }}</h1> <!-- mb-0 removes bottom margin from h1 if any -->
-                        <a href="{{ assignment.repo_url }}" class="btn btn-primary">View Repository</a>
+                        {% if assignment.repo_url %}
+                            <a href="{{ assignment.repo_url }}" class="btn btn-primary">View Repository</a>
+                        {% else %}
+                            <span class="text-danger">Repository URL not available</span>
+                        {% endif %}
                     </div>
                     <h6>Classroom: {{assignment.classroom.title}}</h6>
                     <h6 class="text-muted">Creation date: {{ assignment.creation_date }}</h6>

@@ -1,14 +1,21 @@
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
 
-#here I rewrite the authentication backends
+
 class GitLabAuthBackend(BaseBackend):
-    def authenticate(self, request, gitlab_id=None):
+    def authenticate(self, request, gitlab_id=None, username=None):
         UserModel = get_user_model()
-        user, created = UserModel.objects.get_or_create(
-            gitlab_id=gitlab_id,
-        )
-        return user
+        try:
+            # Attempt to get the existing user
+            user = UserModel.objects.get(gitlab_id=gitlab_id)
+            return user
+        except UserModel.DoesNotExist:
+            # If the user does not exist, create a new one
+            user = UserModel.objects.create(
+                gitlab_id=gitlab_id,
+                username=username
+            )
+            return user
 
     def get_user(self, user_id):
         UserModel = get_user_model()

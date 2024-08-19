@@ -4,8 +4,6 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 
-
-# Create your views here.
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "GET":
         return render(request, "accounts/login.html")
@@ -18,10 +16,11 @@ def login_view(request: HttpRequest) -> HttpResponse:
         try:
             gl.auth()
             gl_user_id = gl.user.id
+            username = gl.user.username
             request.session["avatar"] = gl.user.avatar_url
-            request.session["name"] = gl.user.name
+            request.session["name"] = gl.user.username
             request.session["email"] = gl.user.email
-            user = authenticate(gitlab_id=gl_user_id)
+            user = authenticate(request, gitlab_id=gl_user_id, username=username)
             if user:
                 login(request, user)
                 return HttpResponseRedirect(reverse("gitlab_classroom:index"))

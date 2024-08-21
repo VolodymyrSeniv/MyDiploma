@@ -14,14 +14,35 @@ Before running the GitLab Classroom application, make sure you have the followin
    ```bash
    pip install virtualenv
 
-##Setting Up the Environment
+## Setting Up the Environment
 
-1. **Create a virtual environment**: virtualenv venv
-2. **Activate the virtual environment**:
-   *Windows*: venv\Scripts\activate
-   *macOS/Linux*: source venv/bin/activate
-4. **Install the required dependencies using pip**: pip install -r requirements.txt
-5. **Apply the migrations to set up the database**: python manage.py migrate
-6. **(Optional) If you want to load initial data, use**: python manage.py loaddata initial_data.json
-7. **Start the Django development server**: python manage.py runserver
-8. **Open your web browser and navigate to http://127.0.0.1:8000/ to access the application**.
+1. **Create a virtual environment**:
+   ```bash
+   virtualenv venv
+   ```
+3. **Activate the virtual environment**:
+   *Windows*:
+   ```bash
+   venv\Scripts\activate
+   ```
+   *macOS/Linux*:
+   ```bash
+   source venv/bin/activate
+   bash
+5. **Install the required dependencies using pip**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+7. **Apply the migrations to set up the database**:
+   ```bash
+   python manage.py migrate
+   ```
+10. **(Optional) If you want to load initial data, use**:
+    ```bash
+    python manage.py loaddata initial_data.json
+    ```
+12. **Start the Django development server**:
+    ```bash
+    python manage.py runserver
+    ```
+14. **Open your web browser and navigate to http://127.0.0.1:8000/ to access the application**.

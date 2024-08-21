@@ -1,10 +1,19 @@
-GitLab Classroom Application - Setup and Run Instructions
-The GitLab Classroom application is a full-stack web tool which is developed as part of my thesis, designed to improve the management of classroom activities, assignments and assessment of students projects, labs and tasks for teachers and professors of the Faculty of Electronics and Information Sciences of the Warsaw University of Technology by using the powerful functions of GitLab on version control and project management with the help of GitLab API. In modern education, especially in computer science and software development courses, managing and evaluating student’s assignments can be a difficult task due to the volume of assignments and the number of students, the need for timely feedback, and the importance of collaboration and version control in programming projects. GitLab Classroom solves these problems by providing teachers with an optimized interface for creating classes, assigning assignments, creating projects, tracking student progress, and assessing submitted materials.
+# GitLab Classroom Application - Setup and Run Instructions
+
+The **GitLab Classroom application** is a full-stack web tool developed as part of my thesis. It is designed to improve the management of classroom activities, assignments, and the assessment of student projects, labs, and tasks for teachers and professors of the Faculty of Electronics and Information Sciences at the Warsaw University of Technology.
+
+By utilizing the powerful version control and project management functions of GitLab, along with the GitLab API, this application helps address the challenges of managing and evaluating assignments, providing timely feedback, and facilitating collaboration in programming projects.
+
+## Prerequisites
+
 Before running the GitLab Classroom application, make sure you have the following installed on your system:
-Python 3.8+: You can download Python from python.org.
-Git: Ensure Git is installed to clone the repository. You can download it from git-scm.com.
-Virtualenv: It's recommended to use a virtual environment for managing dependencies. You can install it using:
-pip install virtualenv
+
+1. **Python 3.8+**: You can download Python from [python.org](https://www.python.org/downloads/).
+2. **Git**: Ensure Git is installed to clone the repository. You can download it from [git-scm.com](https://git-scm.com/downloads).
+3. **Virtualenv**: It's recommended to use a virtual environment for managing dependencies. You can install it using:
+   ```bash
+   pip install virtualenv
+
 Create a virtual environment:
 virtualenv venv
 Activate the virtual environment:

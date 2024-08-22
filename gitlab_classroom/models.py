@@ -25,7 +25,7 @@ class Student(models.Model): #student database model
 
     def __str__(self):
         return f"{self.gitlab_username} - {self.gitlab_id}"
-    
+
     def get_absolute_url(self):#getting the url
         return reverse("gitlab_classroom:student-detail", args=[str(self.id)])
 
@@ -48,7 +48,7 @@ class Classroom(models.Model): #classroom database model
 
     def __str__(self):
         return self.title
-    
+
     def get_absolute_url(self):#getting the url
         return reverse("gitlab_classroom:classroom-detail", args=[str(self.id)])
 

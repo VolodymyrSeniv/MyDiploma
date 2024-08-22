@@ -72,3 +72,13 @@ class ForkProjectsForm(forms.Form):
         label="GitLab Template ID",
         help_text="Enter the GitLab ID of the template project to fork."
     )
+
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField(
+        label=None,  # No label is displayed
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'custom-file-input',  # Custom class for Bootstrap styling
+            'id': 'customFile',  # Custom ID for the input element
+        }),
+    )

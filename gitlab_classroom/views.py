@@ -1,13 +1,18 @@
+import csv
+import json
+import gitlab
+import re
 from django.contrib.auth.decorators import login_required
 from django.forms import BaseModelForm
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.views import generic
 from gitlab_classroom.forms import (ClassroomSearchForm,
                                     AssignmentSearchForm,
                                     StudentSearchForm,
                                     AddStudentToClassroomForm,
-                                    ForkProjectsForm)
+                                    ForkProjectsForm,
+                                    UploadFileForm)
 from gitlab_classroom.models import Classroom, Assignment, Student
 from gitlab_classroom.forms import AssignmentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,8 +20,6 @@ from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from gitlab import GitlabGetError
-import gitlab
-import re
 
 
 # Create your views here.
@@ -62,8 +65,8 @@ class ClassroomsDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object() 
-        classroom_id = self.kwargs.get('pk')  
+        self.object = self.get_object()
+        classroom_id = self.kwargs.get('pk')
         gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
         if 'add_student' in request.POST:
             add_form = AddStudentToClassroomForm(request.POST, classroom_id=classroom_id)
@@ -166,18 +169,15 @@ class ClassroomUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def form_valid(self, form):
         # This method is called when the form is valid, before saving the object.
-        
         # Access the current user
         self.object = self.get_object()
         response = super().form_valid(form)
         try:
         # Optionally, access the GitLab ID stored in the Classroom instance
             gitlab_group_id = form.instance.gitlab_id
-            
             # Example: update a GitLab group's name or other details
             # Configure access to your GitLab instance
             gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
-            
             group = gl.groups.get(gitlab_group_id)
             # Assuming you want to update the name of the group based on a field in your form
             group.name = form.cleaned_data['title']
@@ -193,7 +193,6 @@ class ClassroomUpdateView(LoginRequiredMixin, generic.UpdateView):
             # Log the exception if necessary
             messages.error(self.request, f"An error occurred while trying to update the GitLab group: {str(e)}. It doesn't exist.")
             self.object.delete()  # Delete the classroom instance
-        
         return response
 
 
@@ -206,23 +205,18 @@ class ClassroomDeleteView(LoginRequiredMixin, generic.DeleteView):
         # Get the object
         self.object = self.get_object()
         response = super().form_valid(form)
-        # Optionally retrieve GitLab group ID from Classroom object
         if self.object.gitlab_id:
+            gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                            private_token=self.request.session["access_token"])
             try:
-                # Configure access to your GitLab instance
-                gl = gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
-                
-                # Try to get the GitLab group and delete it
                 group = gl.groups.get(self.object.gitlab_id)
                 group.delete()
-                
                 messages.success(self.request, "Classroom and associated GitLab group were deleted successfully.")
             except GitlabGetError:
                 messages.error(self.request, "GitLab group could not be found. Classroom deleted without deleting the GitLab group.")
             except Exception as e:
                 # Log the exception if necessary
                 messages.error(self.request, f"An error occurred while trying to delete the GitLab group: {str(e)}. It doesn't exist.")
-        
         return response
 
 
@@ -236,14 +230,144 @@ class StudentsListView(LoginRequiredMixin, generic.ListView):
         context["search_form"] = StudentSearchForm(
             initial={"gitlab_username" : gitlab_username}
         )
+        context["upload_form"] = UploadFileForm()
         return context
-    
+
     def get_queryset(self):
         queryset = Student.objects.all()
         form = StudentSearchForm(self.request.GET)
         if form.is_valid():
             return queryset.filter(gitlab_username__icontains=form.cleaned_data["gitlab_username"])
 
+    def post(self, request, *args, **kwargs):
+        if 'file' in request.FILES:
+            upload_form = UploadFileForm(request.POST, request.FILES)
+            if upload_form.is_valid():
+                file = request.FILES['file']
+                file_extension = file.name.split('.')[-1].lower()
+                if file_extension == 'txt':
+                    self.handle_txt_file(file)
+                elif file_extension == 'csv':
+                    self.handle_csv_file(file)
+                elif file_extension == 'json':
+                    self.handle_json_file(file)
+                else:
+                    messages.error(request, 'Unsupported file format. Please upload a .txt, .csv, or .json file.')
+                    return self.get(request, *args, **kwargs)
+
+                messages.success(request, 'Students were successfully created.')
+                return redirect('gitlab_classroom:student-list')
+    
+        if 'check_gitlab' in request.POST:
+                    self.check_gitlab_students()
+                    messages.success(request, "GitLab accounts have been checked and updated.")
+                    return redirect('gitlab_classroom:student-list')
+
+        return self.get(request, *args, **kwargs)
+
+    def check_gitlab_students(self):
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                           private_token=self.request.session["access_token"])
+
+        students = Student.objects.all()
+        for student in students:
+            gitlab_username = student.gitlab_username.strip()
+            gitlab_users = gl.users.list(username=gitlab_username)
+
+            if gitlab_users:
+                gitlab_user = gitlab_users[0]
+                student.gitlab_id = gitlab_user.id
+                student.gl_flag = True
+            else:
+                student.gitlab_id = 0  # or None, if that's more appropriate
+                student.gl_flag = False
+
+            student.save()
+
+    def handle_txt_file(self, file):
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                        private_token=self.request.session["access_token"])
+        for line in file:
+            line = line.decode('utf-8').strip()
+            data = line.split(',')
+            if len(data) == 5:
+
+                if Student.objects.filter(gitlab_username=data[0].strip()).exists():
+                    continue
+
+                students = gl.users.list(username=data[0].strip())
+                gitlab_id = 0
+                gl_flag = False
+                if students:
+                    student = students[0]
+                    if not Student.objects.filter(gitlab_id=student.id).exists():
+                        gitlab_id = student.id
+                        gl_flag = True
+                Student.objects.create(
+                    gitlab_id=gitlab_id,
+                    gitlab_username=data[0].strip(),
+                    first_name=data[1].strip(),
+                    second_name=data[2].strip(),
+                    email=data[3].strip(),
+                    student_id=data[4].strip(),
+                    gl_flag=gl_flag
+                )
+            else:
+                print(f"No GitLab user found for username {data[1].strip()}")
+
+    def handle_csv_file(self, file):
+        reader = csv.DictReader(file.read().decode('utf-8').splitlines())
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                           private_token=self.request.session["access_token"])
+        for row in reader:
+            if Student.objects.filter(gitlab_username=row['gitlab_username'].strip()).exists():
+                continue
+
+            students = gl.users.list(username=row['gitlab_username'].strip())
+            gitlab_id = 0
+            gl_flag = False
+            if students:
+                student = students[0]
+                if not Student.objects.filter(gitlab_id=student.id).exists():
+                    gitlab_id = student.id
+                    gl_flag = True
+
+            Student.objects.create(
+                gitlab_username=row['gitlab_username'].strip(),
+                first_name=row['first_name'].strip(),
+                second_name=row['second_name'].strip(),
+                email=row['email'].strip(),
+                student_id=row['student_id'].strip(),
+                gitlab_id=gitlab_id,
+                gl_flag=gl_flag
+            )
+
+    def handle_json_file(self, file):
+        data = json.load(file)
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                           private_token=self.request.session["access_token"])
+        for entry in data:
+            if Student.objects.filter(gitlab_username=entry['gitlab_username'].strip()).exists():
+                continue
+
+            students = gl.users.list(username=entry['gitlab_username'].strip())
+            gitlab_id = 0
+            gl_flag = False
+            if students:
+                student = students[0]
+                if not Student.objects.filter(gitlab_id=student.id).exists():
+                    gitlab_id = student.id
+                    gl_flag = True
+
+            Student.objects.create(
+                gitlab_username=entry['gitlab_username'].strip(),
+                first_name=entry['first_name'].strip(),
+                second_name=entry['second_name'].strip(),
+                email=entry['email'].strip(),
+                student_id=entry['student_id'].strip(),
+                gitlab_id=gitlab_id,
+                gl_flag=gl_flag
+            )
 
 class StudentsDetailView(LoginRequiredMixin, generic.DetailView):
     model = Student
@@ -294,7 +418,7 @@ class StudentUpdateView(LoginRequiredMixin, generic.UpdateView):
               "student_id"}
     success_url=reverse_lazy("gitlab_classroom:student-list")
     template_name="gitlab_classroom/student_form.html"
-    
+
     def form_valid(self, form) -> HttpResponse:
         response = super().form_valid(form)
         messages.success(self.request, "Student details were updated successfully.")
@@ -402,7 +526,6 @@ class AssignmentsDetailView(LoginRequiredMixin, generic.DetailView):
                         'access_level': gitlab.const.AccessLevel.DEVELOPER
                     })
                     print(f"Project forked for {student.username} in subgroup {personal_group_name}")
-
 
 
 class AssignmentCreateView(LoginRequiredMixin, generic.CreateView):

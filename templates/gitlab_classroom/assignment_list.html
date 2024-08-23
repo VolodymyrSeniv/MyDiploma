@@ -26,7 +26,7 @@
             {% for assignment in assignment_list %}
             <tr>
                 <td>{{ assignment.classroom.title }}</td>
-                <td><a href="{{ assignment.get_absolute_url }}">{{ assignment.title }}</a></td>
+                <td><a href="{{ assignment.get_absolute_url }}" class="title">{{ assignment.title }}</a></td>
                 <td>{{ assignment.deadline }}</td>
                 <td><a class="btn btn-info" href="{% url 'gitlab_classroom:assignment-update' pk=assignment.id %}">Update</a></td>
                 <td><a class="btn btn-danger" href="{% url 'gitlab_classroom:assignment-delete' pk=assignment.id %}" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete</a></td>

@@ -44,7 +44,7 @@
                 {% for student in student_list %}
                 <tr>
                     <td>{{ student.id }}</td>
-                    <td><a href="{{ student.get_absolute_url }}" class="student-username">{{ student.gitlab_username }}</a></td>
+                    <td><a href="{{ student.get_absolute_url }}" class="title">{{ student.gitlab_username }}</a></td>
                     <td>
                         {% if student.gl_flag %}
                             <span class="text-success">&#10003;</span> <!-- Tick for True -->

@@ -1,1 +1,0 @@
-delete from gitlab_classroom_classroom;

@@ -5,17 +5,17 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Students</h1>
         <div class="d-flex align-items-center ms-auto">
-            <form method="post" enctype="multipart/form-data" class="me-2">
+            <form id="uploadForm" method="post" enctype="multipart/form-data" class="me-2">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <input type="file" id="fileInput" name="file" style="display: none;" onchange="document.getElementById('uploadForm').submit();">
                 <button type="button" class="btn btn-success me-2 mb-2" onclick="document.getElementById('fileInput').click();">
                     Upload Students
                 </button>
-            </form>
+            </form>            
             <form method="post" action="" class="me-2">
                 {% csrf_token %}
-                <a type="submit" name="check_gitlab" class="btn btn-primary me-2">Check GitLab Accounts</a>
+                <button type="submit" name="check_gitlab" class="btn btn-primary me-2 mb-2">Check GitLab Accounts</button>
             </form>
             <a class="btn btn-primary me-2" href="{% url 'gitlab_classroom:student-create' %}">+ Add Student</a>
         </div>        
@@ -24,7 +24,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <form method="get" action="" class="d-flex align-items-center w-100">
             {{ search_form|crispy }}
-            <button class="btn btn-secondary ms-2" type="submit">🔎 Search</button>
+            <button class="btn btn-secondary m-2" type="submit">🔎 Search</button>
         </form>
     </div>
 
@@ -44,7 +44,7 @@
                 {% for student in student_list %}
                 <tr>
                     <td>{{ student.id }}</td>
-                    <td><a href="{{ student.get_absolute_url }}">{{ student.gitlab_username }}</a></td>
+                    <td><a href="{{ student.get_absolute_url }}" class="student-username">{{ student.gitlab_username }}</a></td>
                     <td>
                         {% if student.gl_flag %}
                             <span class="text-success">&#10003;</span> <!-- Tick for True -->

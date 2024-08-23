@@ -1,16 +1,17 @@
 from django import forms
 from gitlab_classroom.models import Assignment, Student, Classroom
 
+
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['title', 'description', 'deadline']
+        fields = ["title", "description", "template_id", "deadline"]
         widgets = {
             'deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'template_id': forms.TextInput(attrs={'type': 'text'}),
         }
         # It's important to specify the input format if you're using a custom format
         input_formats = ['%Y-%m-%dT%H:%M']
-
 
 class AddStudentToClassroomForm(forms.Form):
     student = forms.ModelChoiceField(
@@ -66,13 +67,6 @@ class StudentSearchForm(forms.Form):
                                           }
                                     )
                                 )
-
-class ForkProjectsForm(forms.Form):
-    gitlab_template_id = forms.CharField(
-        label="GitLab Template ID",
-        help_text="Enter the GitLab ID of the template project to fork."
-    )
-
 
 class UploadFileForm(forms.Form):
     file = forms.FileField(

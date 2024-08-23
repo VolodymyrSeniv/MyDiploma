@@ -11,12 +11,11 @@ from gitlab_classroom.forms import (ClassroomSearchForm,
                                     AssignmentSearchForm,
                                     StudentSearchForm,
                                     AddStudentToClassroomForm,
-                                    ForkProjectsForm,
                                     UploadFileForm)
 from gitlab_classroom.models import Classroom, Assignment, Student
 from gitlab_classroom.forms import AssignmentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from gitlab import GitlabGetError
@@ -53,6 +52,7 @@ class ClassroomsListView(LoginRequiredMixin, generic.ListView):
         """Override to filter assignments to those owned by the current user."""
         return queryset
 
+
 class ClassroomsDetailView(LoginRequiredMixin, generic.DetailView):
     model = Classroom
     context_object_name = 'classroom'
@@ -80,6 +80,7 @@ class ClassroomsDetailView(LoginRequiredMixin, generic.DetailView):
                         member = members_group.members.create({'user_id': student.gitlab_id,
                                                             'access_level': gitlab.const.DEVELOPER_ACCESS})
                     self.object.students.add(student)
+                    messages.success(self.request, "Student was successfully added")
                     return HttpResponseRedirect(self.object.get_absolute_url())
                 except GitlabGetError:
                     messages.error(self.request, "Student has no account on GitLab.")
@@ -103,8 +104,71 @@ class ClassroomsDetailView(LoginRequiredMixin, generic.DetailView):
                     self.object.students.remove(student)
                 except Exception as e:
                     messages.error(self.request, f"Student is no longer a GitLab group member: {e}.")
+
+        elif 'fork_projects' in request.POST:
+            assignment_id = request.POST.get('assignment_id')
+            assignment = get_object_or_404(Assignment, pk=assignment_id)
+            try:
+                    gitlab_template_id = assignment.template_id
+                    assignments_group = gl.groups.get(assignment.gitlab_id)
+                    classroom_group = gl.groups.get(self.object.gitlab_id)
+                    members_group = self.create_or_get_subgroup(classroom_group, 'MEMBERS')
+                    self.fork_project_for_students(assignments_group, gitlab_template_id, members_group)
+                    messages.success(self.request, "Projects successfully forked for all students.")
+            except Exception as e:
+                    messages.error(self.request, f"An error occurred during forking: {e}")
+
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
         return self.render_to_response(self.get_context_data())
 
+    def create_or_get_subgroup(self, parent_group, subgroup_name):
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
+        subgroups = parent_group.subgroups.list(all=True)
+        for subgroup in subgroups:
+            if subgroup.name == subgroup_name:
+                return gl.groups.get(subgroup.id)
+        subgroup_data = {
+            'name': subgroup_name,
+            'path': subgroup_name,
+            'parent_id': parent_group.id
+        }
+        return gl.groups.create(subgroup_data)
+
+    def fork_project_for_students(self, assignments_group, base_project_id, student_group):
+        user = self.request.user
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
+        students = gl.groups.get(student_group.id).members.list(all=True)
+        base_project = gl.projects.get(base_project_id)
+        for student in students:
+            if int(student.id) != int(user.gitlab_id):
+                # Sanitize the project name and path
+                personal_group_name = sanitize_name(f"{assignments_group.name}_{student.username}")
+                existing_projects = gl.projects.list(search=f"{personal_group_name}_project")
+                project_exists = any(proj for proj in existing_projects if proj.namespace['id'] == assignments_group.id)
+                if not project_exists:
+                    sanitized_project_name = sanitize_name(f"{personal_group_name}_project")
+                    forked_project_data = base_project.forks.create({
+                        'namespace': assignments_group.id,
+                        'name': sanitized_project_name,
+                        'path': sanitized_project_name
+                    })
+                    forked_project = gl.projects.get(forked_project_data.id)
+
+                    forked_project.members.create({
+                        'user_id': student.id,
+                        'access_level': gitlab.const.AccessLevel.DEVELOPER
+                    })
+                    print(f"Project forked for {student.username} in subgroup {personal_group_name}")
+
+        return self.render_to_response(self.get_context_data())
+
+def sanitize_name(name):
+        # Replace any invalid characters with '_'
+        sanitized_name = re.sub(r'[^a-zA-Z0-9_\-.]', '_', name)
+        # Ensure the name does not start with '-', end with '.', '.git', or '.atom'
+        sanitized_name = sanitized_name.strip('-.')
+        return sanitized_name
 
 class ClassroomCreateView(LoginRequiredMixin, generic.CreateView):
     model = Classroom
@@ -240,30 +304,43 @@ class StudentsListView(LoginRequiredMixin, generic.ListView):
             return queryset.filter(gitlab_username__icontains=form.cleaned_data["gitlab_username"])
 
     def post(self, request, *args, **kwargs):
-        if 'file' in request.FILES:
-            upload_form = UploadFileForm(request.POST, request.FILES)
-            if upload_form.is_valid():
-                file = request.FILES['file']
-                file_extension = file.name.split('.')[-1].lower()
-                if file_extension == 'txt':
-                    self.handle_txt_file(file)
-                elif file_extension == 'csv':
-                    self.handle_csv_file(file)
-                elif file_extension == 'json':
-                    self.handle_json_file(file)
+        try:
+            if 'file' in request.FILES:
+                upload_form = UploadFileForm(request.POST, request.FILES)
+                if upload_form.is_valid():
+                    file = request.FILES['file']
+                    file_extension = file.name.split('.')[-1].lower()
+                    if file_extension == 'txt':
+                        self.handle_txt_file(file)
+                    elif file_extension == 'csv':
+                        self.handle_csv_file(file)
+                    elif file_extension == 'json':
+                        self.handle_json_file(file)
+                    else:
+                        messages.error(request, 'Unsupported file format. Please upload a .txt, .csv, or .json file.')
+                        return self.get(request, *args, **kwargs)
+
+                    messages.success(request, 'Students were successfully created.')
+                    return redirect('gitlab_classroom:student-list')
                 else:
-                    messages.error(request, 'Unsupported file format. Please upload a .txt, .csv, or .json file.')
+                    messages.error(request, 'Invalid form data.')
                     return self.get(request, *args, **kwargs)
 
-                messages.success(request, 'Students were successfully created.')
-                return redirect('gitlab_classroom:student-list')
-    
+        except Exception as e:
+            messages.error(request, f"An error occurred during file processing: {e}.")
+            return self.get(request, *args, **kwargs)
+
         if 'check_gitlab' in request.POST:
-                    self.check_gitlab_students()
-                    messages.success(request, "GitLab accounts have been checked and updated.")
-                    return redirect('gitlab_classroom:student-list')
+            try:
+                self.check_gitlab_students()
+                messages.success(request, "GitLab accounts were checked and updated.")
+            except Exception as e:
+                messages.error(request, f"An error occurred while checking GitLab accounts: {e}.")
+
+            return redirect('gitlab_classroom:student-list')
 
         return self.get(request, *args, **kwargs)
+
 
     def check_gitlab_students(self):
         gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
@@ -462,71 +539,6 @@ class AssignmentsListView(LoginRequiredMixin, generic.ListView):
 class AssignmentsDetailView(LoginRequiredMixin, generic.DetailView):
     model = Assignment
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["fork_projects_form"] = ForkProjectsForm()
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = ForkProjectsForm(request.POST)
-        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
-                           private_token=self.request.session["access_token"])
-        assignment_id = self.kwargs.get('pk')
-        assignment = Assignment.objects.get(pk=assignment_id)
-        if form.is_valid():
-            try:
-                gitlab_template_id = form.cleaned_data['gitlab_template_id']
-                assignments_group = gl.groups.get(assignment.gitlab_id) 
-                classroom_group = gl.groups.get(assignment.classroom.gitlab_id)
-                members_group = self.create_or_get_subgroup(classroom_group, 'MEMBERS')
-                self.fork_project_for_students(assignments_group, gitlab_template_id, members_group)
-            except Exception as e:
-                messages.error(self.request, "There is no template with such ID")
-
-        context = self.get_context_data()
-        context['fork_projects_form'] = form
-        return HttpResponseRedirect(self.object.get_absolute_url())
-
-    def create_or_get_subgroup(self, parent_group, subgroup_name):
-        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
-        """ Create a subgroup if it does not exist or return existing one """
-        subgroups = parent_group.subgroups.list(all=True)
-        for subgroup in subgroups:
-            if subgroup.name == subgroup_name:
-                return gl.groups.get(subgroup.id)
-
-        subgroup_data = {
-            'name': subgroup_name,
-            'path': subgroup_name,
-            'parent_id': parent_group.id
-        }
-        return gl.groups.create(subgroup_data)
-
-    def fork_project_for_students(self, assignments_group, base_project_id, student_group):
-        user = self.request.user
-        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
-        students = gl.groups.get(student_group.id).members.list(all=True)
-        base_project = gl.projects.get(base_project_id)
-        for student in students:
-            if int(student.id) != int(user.gitlab_id):
-                personal_group_name = f"{assignments_group.name}_{student.username}"
-                existing_projects = gl.projects.list(search=f"{personal_group_name}_project")
-                project_exists = any(proj for proj in existing_projects if proj.namespace['id'] == assignments_group.id)
-                if not project_exists:
-                    forked_project_data = base_project.forks.create({
-                        'namespace': assignments_group.id,
-                        'name': f"{personal_group_name}_project",
-                        'path': f"{personal_group_name}_project"
-                    })
-                    forked_project = gl.projects.get(forked_project_data.id)
-
-                    forked_project.members.create({
-                        'user_id': student.id,
-                        'access_level': gitlab.const.AccessLevel.DEVELOPER
-                    })
-                    print(f"Project forked for {student.username} in subgroup {personal_group_name}")
-
 
 class AssignmentCreateView(LoginRequiredMixin, generic.CreateView):
     model = Assignment
@@ -538,9 +550,16 @@ class AssignmentCreateView(LoginRequiredMixin, generic.CreateView):
         user = self.request.user
         form.instance.teacher = user
         classroom = get_object_or_404(Classroom, pk=self.kwargs.get('pk'))
-        form.instance.classroom = classroom 
+        form.instance.classroom = classroom
+        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl',
+                           private_token=self.request.session["access_token"])
+        template_id = form.cleaned_data.get('template_id')
+        try:
+            template = gl.projects.get(template_id)
+        except gitlab.exceptions.GitlabGetError:
+            form.add_error('template_id', f"Template ID {template_id} does not exist on GitLab.")
+            return self.form_invalid(form)
         response = super().form_valid(form)
-        gl = gitlab.Gitlab('https://gitlab-stud.elka.pw.edu.pl', private_token=self.request.session["access_token"])
 
         if classroom.gitlab_id:
             try:
@@ -562,7 +581,7 @@ class AssignmentCreateView(LoginRequiredMixin, generic.CreateView):
             except Exception as e:
                 messages.error(self.request, "Error occured ")
 
-        return response
+        return redirect(reverse('gitlab_classroom:classroom-detail', args=[classroom.id]))
 
 
 class AssignmentUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -583,7 +602,7 @@ class AssignmentUpdateView(LoginRequiredMixin, generic.UpdateView):
             messages.success(self.request, "Assignment was updated successfully")
         except Exception as e:
             messages.error(self.request, "Error occured. Assignmend doesn't exist on gitlab")
-        return response 
+        return response
 
 
 class AssignmentDeleteView(LoginRequiredMixin, generic.DeleteView):

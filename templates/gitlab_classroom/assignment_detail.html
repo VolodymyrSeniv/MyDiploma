@@ -18,11 +18,6 @@
                     <h6 class="text-muted">Creation date: {{ assignment.creation_date }}</h6>
                     <h6 class="text-muted">Deadline: {{ assignment.deadline }}</h6>
                     <p class="card-text">{{ assignment.description }}</p>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ fork_projects_form|crispy }}
-                        <button class="btn btn-success" type="submit">Fork Project</button>
-                    </form>
                     <br>
                 </div>
             </div>

@@ -1,30 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_filters %}
 {% block content %}
-<style>
-    .assignment-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap; /* Ensures that content wraps if there's not enough space */
-    }
-
-    .assignment-title {
-        flex-grow: 1;
-        margin-right: 10px; /* Add some space between the title and the buttons */
-        word-break: break-word; /* Breaks long words to avoid overflow */
-    }
-
-    .assignment-actions {
-        display: flex;
-        align-items: center;
-    }
-
-    .assignment-actions .btn,
-    .assignment-actions .badge {
-        margin-left: 5px; /* Space between buttons and badge */
-    }
-</style>
 
 <div class="container mt-5">
     <h1 class="mb-5">{{ classroom.title }} <small class="text-muted">Classroom ID: {{classroom.gitlab_id}}</small></h1>
@@ -40,15 +16,19 @@
             <ul class="list-group mt-3">
                 {% for assignment in classroom.assignment.all %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{{assignment.get_absolute_url}}" class="assignment-title">{{ assignment.title }}</a>
-                    {% if assignment.repo_url %}
-                    <div class="assignment-actions">
-                            <a href="{{ assignment.repo_url }}" class="btn btn-primary">View Repository</a>
-                        {% else %}
-                            <span class="text-danger">Repository URL not available</span>
-                    {% endif %}
-                    <span class="badge badge-primary badge-pill assignment-badge">Deadline: {{ assignment.deadline }}</span>
-                    </div>
+                    <a href="{{assignment.get_absolute_url}}" class="assignment-title d-block mb-2">{{ assignment.title }}</a>
+                        <div class="d-flex flex-wrap align-items-center justify-content-center">
+                                {% if assignment.repo_url %}
+                                        <a href="{{ assignment.repo_url }}" class="btn btn-primary">Repository</a>
+                                    {% else %}
+                                        <span class="text-danger">Repository URL not available</span>
+                                {% endif %}
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                                    <button type="submit" name="fork_projects" class="btn btn-success me-2 mb-2 ms-2">Fork</button>
+                                </form>
+                        </div>
                 </li>
                 {% endfor %}
             </ul>
@@ -75,7 +55,7 @@
                     <form method="post" class="form-inline">
                         {% csrf_token %}
                         <input type="hidden" name="student_id" value="{{ student.id }}">
-                        <button type="submit" name="remove_student" class="btn btn-danger">Remove</button>
+                        <button type="submit" name="remove_student" class="btn btn-danger m-2">Remove</button>
                     </form>
                 </li>
                 {% endfor %}

@@ -1,117 +1,14 @@
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
-.navbar {
-    background-color: black;
-    width: 100%;
-    padding: 10px 20px; /* Adjust padding as needed */
-    display: flex;
-    align-items: center;
-    justify-content: start;
-    color: white;
-}
-.navbar a {
-    color: white;
-    text-decoration: none;
-}
-.navbar img {
-    height: 50px; /* Adjust based on your logo's size */
-    margin-right: 20px;
-}
-.application-name a {
-    font-size: 20px; /* Adjust as needed */
-    color: white;
-    text-decoration: none;
-    margin-right: 20px; /* Adjust the spacing between the application name and the nav items */
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-.application-name a:hover, .application-name a:focus {
-    background-color: grey;
-    color: white;
-}
-.navbar-nav {
-    display: inline;
-    list-style-type: none; /* Removes bullet points from list */
-    margin: 0;
-    padding: 0;
-}
-.nav-item {
-    display: inline;
-    margin: 0 10px; /* Adjust spacing between buttons */
-}
-.nav-link {
-    display: inline;
-    background-color: black;
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px; /* Rounded corners */
-    text-decoration: none;
-    transition: background-color 0.3s, color 0.3s;
-}
-.nav-link:hover, .nav-link:focus {
-    background-color: grey;
-    color: white;
+.student-username {
+    text-decoration: bold;
+    transition: color 0.3s ease, transform 0.3s ease;
+    padding: 2px 4px; /* Add some padding for the border */
+    border-radius: 4px; /* Slightly rounded corners */
+    font-weight: bold;
 }
 
-.container {
-    max-width: 1200px; /* Adjust width as necessary */
+.student-username:hover {
+    color: #0056b3; /* Darker shade of blue */
+    transform: scale(1.1); /* Slightly scale up the text */
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Blue glow around the text */
+    border: 1px solid #007bff; /* Blue border around the text */
 }
-
-.table {
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-
-.btn-info {
-    color: #fff;
-}
-
-a {
-    text-decoration: none;
-    color: inherit; /* Ensures links don't inherit anchor tag color styles */
-}
-
-a.btn-danger:hover {
-    opacity: 0.9;
-}
-
-a.btn-info:hover {
-    opacity: 0.9;
-}
-
-/* static/styles.css */
-
-/* Enhances spacing and visual separation */
-.container {
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-/* Customizes form layout for clarity */
-.form-inline {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.list-group-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-danger {
-    margin-left: 10px;  /* Adds spacing between student name and button */
-}
-
-/* Style enhancements for forms and buttons */
-form button {
-    margin-top: 8px;
-}
-
-/* Style for the assignment list */
-.assignment-badge {
-    background-color: #007bff;  /* Primary color similar to Bootstrap's primary */
-}
-
